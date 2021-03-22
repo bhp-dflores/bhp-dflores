@@ -1,0 +1,5 @@
+- 👋 Hi, I’m David Flores
+- 👀 I’m interested in data engineering, data science, azure
+- 🌱 I’m currently learning Azure Data Factory/Databricks Koalas
+- 💞️ I’m looking to collaborate on all things data
+- 📫 How to reach me: dflores@brighthealthcare.com
