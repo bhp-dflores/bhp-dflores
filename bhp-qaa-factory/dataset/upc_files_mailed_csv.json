@@ -1,0 +1,49 @@
+{
+	"name": "upc_files_mailed_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "bhp_sandbox_upc_blob",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"upc_fm_filename": {
+				"type": "string",
+				"defaultValue": "''"
+			}
+		},
+		"folder": {
+			"name": "UPC_files_automation"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().upc_fm_filename",
+					"type": "Expression"
+				},
+				"container": "upc"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "filename",
+				"type": "String"
+			},
+			{
+				"name": "maildate",
+				"type": "String"
+			},
+			{
+				"name": "QuantityMailed",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

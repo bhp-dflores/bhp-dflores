@@ -1,0 +1,33 @@
+{
+	"name": "upcFilesMailedSQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "bhp_sql_OpsStaging",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "UPC_files_automation"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "filename",
+				"type": "varchar"
+			},
+			{
+				"name": "maildate",
+				"type": "varchar"
+			},
+			{
+				"name": "QuantityMailed",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "UPC_FilesMailed"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,125 @@
+{
+	"name": "upc_dependent_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "bhp_sandbox_upc_blob",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"upc_dependent_filename": {
+				"type": "string",
+				"defaultValue": "''"
+			}
+		},
+		"folder": {
+			"name": "UPC_files_automation"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().upc_dependent_filename",
+					"type": "Expression"
+				},
+				"container": "upc"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "filename",
+				"type": "String"
+			},
+			{
+				"name": "acn",
+				"type": "String"
+			},
+			{
+				"name": "member_id",
+				"type": "String"
+			},
+			{
+				"name": "Subscriber_ID",
+				"type": "String"
+			},
+			{
+				"name": "Group_ID",
+				"type": "String"
+			},
+			{
+				"name": "xml_doc_id",
+				"type": "String"
+			},
+			{
+				"name": "HIOS_Code",
+				"type": "String"
+			},
+			{
+				"name": "First_Name",
+				"type": "String"
+			},
+			{
+				"name": "Last_Name",
+				"type": "String"
+			},
+			{
+				"name": "Subscriber_Dependent",
+				"type": "String"
+			},
+			{
+				"name": "Sub_Dep_Person_Code",
+				"type": "String"
+			},
+			{
+				"name": "DOB",
+				"type": "String"
+			},
+			{
+				"name": "Effective_Date",
+				"type": "String"
+			},
+			{
+				"name": "name",
+				"type": "String"
+			},
+			{
+				"name": "address1",
+				"type": "String"
+			},
+			{
+				"name": "address2",
+				"type": "String"
+			},
+			{
+				"name": "city",
+				"type": "String"
+			},
+			{
+				"name": "state",
+				"type": "String"
+			},
+			{
+				"name": "zip",
+				"type": "String"
+			},
+			{
+				"name": "ncoa_match_flag",
+				"type": "String"
+			},
+			{
+				"name": "printdate",
+				"type": "String"
+			},
+			{
+				"name": "maildate",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

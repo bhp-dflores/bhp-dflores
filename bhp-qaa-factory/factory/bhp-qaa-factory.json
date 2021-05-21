@@ -1,0 +1,9 @@
+{
+	"name": "bhp-qaa-factory",
+	"location": "centralus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "6b8203c5-fd0a-4354-82c3-a813823994a8",
+		"tenantId": "565966d7-2be2-47b1-8a7d-681ca1a8f925"
+	}
+}

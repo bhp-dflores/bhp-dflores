@@ -1,0 +1,10 @@
+{
+	"name": "qaa-data-lake",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/d5c9a6b9-b86d-4e64-b9c3-dd75d7a0566b/resourceGroups/bhp-uat-selenium-pr-rg/providers/Microsoft.Storage/storageAccounts/bhpqaahpops",
+		"groupId": "dfs",
+		"fqdns": [
+			"bhpqaahpops.dfs.core.windows.net"
+		]
+	}
+}

@@ -1,0 +1,27 @@
+{
+	"name": "new_claim_audit_file",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "IFP_Audit",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"filename": "@triggerBody().fileName"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/ifp-claim-testing/blobs/loomis_claims_file_denials_removed",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/d5c9a6b9-b86d-4e64-b9c3-dd75d7a0566b/resourceGroups/bhp-uat-selenium-pr-rg/providers/Microsoft.Storage/storageAccounts/bhpqaahpops",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

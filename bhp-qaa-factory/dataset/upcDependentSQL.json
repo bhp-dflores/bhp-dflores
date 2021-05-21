@@ -1,0 +1,101 @@
+{
+	"name": "upcDependentSQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "bhp_sql_OpsStaging",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "UPC_files_automation"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "filename",
+				"type": "varchar"
+			},
+			{
+				"name": "acn",
+				"type": "varchar"
+			},
+			{
+				"name": "Subscriber_ID",
+				"type": "varchar"
+			},
+			{
+				"name": "Group_ID",
+				"type": "varchar"
+			},
+			{
+				"name": "HIOS_Code",
+				"type": "varchar"
+			},
+			{
+				"name": "First_Name",
+				"type": "varchar"
+			},
+			{
+				"name": "Last_Name",
+				"type": "varchar"
+			},
+			{
+				"name": "Subscriber_Dependent",
+				"type": "varchar"
+			},
+			{
+				"name": "Sub_Dep_Person_Code",
+				"type": "varchar"
+			},
+			{
+				"name": "DOB",
+				"type": "varchar"
+			},
+			{
+				"name": "Effective_Date",
+				"type": "varchar"
+			},
+			{
+				"name": "name",
+				"type": "varchar"
+			},
+			{
+				"name": "address1",
+				"type": "varchar"
+			},
+			{
+				"name": "address2",
+				"type": "varchar"
+			},
+			{
+				"name": "city",
+				"type": "varchar"
+			},
+			{
+				"name": "state",
+				"type": "varchar"
+			},
+			{
+				"name": "zip",
+				"type": "varchar"
+			},
+			{
+				"name": "ncoa_match_flag",
+				"type": "varchar"
+			},
+			{
+				"name": "printdate",
+				"type": "varchar"
+			},
+			{
+				"name": "maildate",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "UPC_DependentDetail"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

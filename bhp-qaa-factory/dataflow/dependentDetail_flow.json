@@ -1,0 +1,35 @@
+{
+	"name": "dependentDetail_flow",
+	"properties": {
+		"folder": {
+			"name": "UPC_files_flow"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "upc_dependent_csv",
+						"type": "DatasetReference"
+					},
+					"name": "dependentDetailCSV"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "upcDependentSQL",
+						"type": "DatasetReference"
+					},
+					"name": "dependentDetailSQL"
+				}
+			],
+			"transformations": [
+				{
+					"name": "changeDateFormat"
+				}
+			],
+			"script": "source(output(\n\t\tfilename as string,\n\t\tacn as string,\n\t\tmember_id as string,\n\t\tSubscriber_ID as string,\n\t\tGroup_ID as string,\n\t\txml_doc_id as string,\n\t\tHIOS_Code as string,\n\t\tFirst_Name as string,\n\t\tLast_Name as string,\n\t\tSubscriber_Dependent as string,\n\t\tSub_Dep_Person_Code as string,\n\t\tDOB as string,\n\t\tEffective_Date as string,\n\t\tname as string,\n\t\taddress1 as string,\n\t\taddress2 as string,\n\t\tcity as string,\n\t\tstate as string,\n\t\tzip as string,\n\t\tncoa_match_flag as string,\n\t\tprintdate as string,\n\t\tmaildate as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> dependentDetailCSV\ndependentDetailCSV derive(maildate = toDate(maildate, 'yyyy-MM-dd'),\n\t\tprintdate = toDate(printdate, 'yyyy-MM-dd')) ~> changeDateFormat\nchangeDateFormat sink(input(\n\t\tfilename as string,\n\t\tacn as string,\n\t\tSubscriber_ID as string,\n\t\tGroup_ID as string,\n\t\tHIOS_Code as string,\n\t\tFirst_Name as string,\n\t\tLast_Name as string,\n\t\tSubscriber_Dependent as string,\n\t\tSub_Dep_Person_Code as string,\n\t\tDOB as string,\n\t\tEffective_Date as string,\n\t\tname as string,\n\t\taddress1 as string,\n\t\taddress2 as string,\n\t\tcity as string,\n\t\tstate as string,\n\t\tzip as string,\n\t\tncoa_match_flag as string,\n\t\tprintdate as string,\n\t\tmaildate as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tfilename,\n\t\tacn,\n\t\tSubscriber_ID,\n\t\tGroup_ID,\n\t\tHIOS_Code,\n\t\tFirst_Name,\n\t\tLast_Name,\n\t\tSubscriber_Dependent,\n\t\tSub_Dep_Person_Code,\n\t\tDOB,\n\t\tEffective_Date,\n\t\tname,\n\t\taddress1,\n\t\taddress2,\n\t\tcity,\n\t\tstate,\n\t\tzip,\n\t\tncoa_match_flag,\n\t\tprintdate,\n\t\tmaildate\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> dependentDetailSQL"
+		}
+	}
+}

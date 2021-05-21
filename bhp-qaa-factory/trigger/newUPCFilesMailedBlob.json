@@ -1,0 +1,27 @@
+{
+	"name": "newUPCFilesMailedBlob",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "upc_filesMailed_pipe",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"filesMailed_filename": "@triggerBody().fileName"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/upc/blobs/BH_IFP_FilesMailed",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/eee4d6ad-740a-45fe-b7a5-3953098adad5/resourceGroups/tpa-sandbox-resources/providers/Microsoft.Storage/storageAccounts/tpafiles",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

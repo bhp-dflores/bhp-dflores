@@ -1,0 +1,153 @@
+{
+	"name": "upc_dependentDetail_pipe",
+	"properties": {
+		"activities": [
+			{
+				"name": "dependentDetailsFlow",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dependentDetail_flow",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"dependentDetailCSV": {
+								"upc_dependent_filename": {
+									"value": "@pipeline().parameters.dependentDetail_filename",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Send Email",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Write to Log",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-21.centralus.logic.azure.com:443/workflows/cb2bd79cad774e6497aa95805448a894/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DaT-rFgk8kinP5LT-9JO2UEProrBMfgJHrEKrrh4jYY",
+					"connectVia": {
+						"referenceName": "AutoResolveIntegrationRuntime",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "POST",
+					"body": {
+						"value": "{\n\"pipeline name\": \"@{pipeline().Pipeline}\",\n\"status of run\": \"SUCCESS\",\n\"file processed\": \"@{pipeline().parameters.dependentDetail_filename}\"\n}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Send Email_copy1",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "dependentDetailsFlow",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "Write to Log",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-21.centralus.logic.azure.com:443/workflows/cb2bd79cad774e6497aa95805448a894/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DaT-rFgk8kinP5LT-9JO2UEProrBMfgJHrEKrrh4jYY",
+					"connectVia": {
+						"referenceName": "AutoResolveIntegrationRuntime",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "POST",
+					"body": {
+						"value": "{\n\"pipeline name\": \"@{pipeline().Pipeline}\",\n\"status of run\": \"FAIL\",\n\"file processed\": \"@{pipeline().parameters.dependentDetail_filename}\"\n}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Write to Log",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "dependentDetailsFlow",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-23.centralus.logic.azure.com:443/workflows/5d86c1d3de5b485ba702da46cdd66dcb/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=CnAEcXr392CS6wwLJm3av4rBcw0Y9zERP265PTuwm2w",
+					"connectVia": {
+						"referenceName": "AutoResolveIntegrationRuntime",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "POST",
+					"body": {
+						"value": "{\n\"pipeline name\": \"@{pipeline().Pipeline}\",\n\"file processed\": \"@{pipeline().parameters.dependentDetail_filename}\",\n\"rows read\": \"@{activity('dependentDetailsFlow').output.runStatus.metrics.dependentDetailSQL.sources.dependentDetailCSV.rowsRead}\",\n\"trigger time\":\"@{convertTimeZone(pipeline().TriggerTime,'UTC','Central Standard Time')}\",\n\"end time\":\"@{convertTimeZone(utcnow(),'UTC','Central Standard Time')}\"\n}",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"dependentDetail_filename": {
+				"type": "string",
+				"defaultValue": "''"
+			}
+		},
+		"folder": {
+			"name": "UPC_Files_Pipeline"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-03-15T15:08:48Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
