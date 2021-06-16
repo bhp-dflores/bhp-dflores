@@ -1,0 +1,59 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "bhp-qaa-factory"
+		},
+		"bhp_prod_sftp_blob_connectionString": {
+			"value": ""
+		},
+		"bhp_sandbox_upc_blob_connectionString": {
+			"value": ""
+		},
+		"bhp_sql_AnalyticsStaging_connectionString": {
+			"value": ""
+		},
+		"bhp_sql_OpsStaging_connectionString": {
+			"value": ""
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"value": "https://qaa-key-vault.vault.azure.net/"
+		},
+		"bhp_bhpdpdatalakedv_provider_properties_typeProperties_serviceEndpoint": {
+			"value": "https://bhpdpdatalakedv.blob.core.windows.net"
+		},
+		"bhp_qaa_data_lake_properties_typeProperties_url": {
+			"value": "https://bhpqaahpops.dfs.core.windows.net"
+		},
+		"newUPCDependentDetail_properties_upc_dependentDetail_pipe_parameters_dependentDetail_filename": {
+			"value": "@triggerBody().fileName"
+		},
+		"newUPCDependentDetail_properties_typeProperties_scope": {
+			"value": "/subscriptions/eee4d6ad-740a-45fe-b7a5-3953098adad5/resourceGroups/tpa-sandbox-resources/providers/Microsoft.Storage/storageAccounts/tpafiles"
+		},
+		"newUPCFilesMailedBlob_properties_upc_filesMailed_pipe_parameters_filesMailed_filename": {
+			"value": "@triggerBody().fileName"
+		},
+		"newUPCFilesMailedBlob_properties_typeProperties_scope": {
+			"value": "/subscriptions/eee4d6ad-740a-45fe-b7a5-3953098adad5/resourceGroups/tpa-sandbox-resources/providers/Microsoft.Storage/storageAccounts/tpafiles"
+		},
+		"new_claim_audit_file_properties_IFP_Audit_parameters_filename": {
+			"value": "@triggerBody().fileName"
+		},
+		"new_claim_audit_file_properties_typeProperties_scope": {
+			"value": "/subscriptions/d5c9a6b9-b86d-4e64-b9c3-dd75d7a0566b/resourceGroups/bhp-uat-selenium-pr-rg/providers/Microsoft.Storage/storageAccounts/bhpqaahpops"
+		},
+		"qaa-data-lake_properties_privateLinkResourceId": {
+			"value": "/subscriptions/d5c9a6b9-b86d-4e64-b9c3-dd75d7a0566b/resourceGroups/bhp-uat-selenium-pr-rg/providers/Microsoft.Storage/storageAccounts/bhpqaahpops"
+		},
+		"qaa-data-lake_properties_groupId": {
+			"value": "dfs"
+		},
+		"qaa-data-lake_properties_fqdns": {
+			"value": [
+				"bhpqaahpops.dfs.core.windows.net"
+			]
+		}
+	}
+}

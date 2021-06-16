@@ -1,0 +1,176 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "bhp-qaa-factory"
+		},
+		"bhp_prod_sftp_blob_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'bhp_prod_sftp_blob'"
+		},
+		"bhp_sandbox_upc_blob_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'bhp_sandbox_upc_blob'"
+		},
+		"bhp_sql_AnalyticsStaging_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'bhp_sql_AnalyticsStaging'"
+		},
+		"bhp_sql_OpsStaging_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'bhp_sql_OpsStaging'"
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://qaa-key-vault.vault.azure.net/"
+		},
+		"bhp_bhpdpdatalakedv_provider_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "https://bhpdpdatalakedv.blob.core.windows.net"
+		},
+		"bhp_qaa_data_lake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://bhpqaahpops.dfs.core.windows.net"
+		},
+		"newUPCDependentDetail_properties_upc_dependentDetail_pipe_parameters_dependentDetail_filename": {
+			"type": "string",
+			"defaultValue": "@triggerBody().fileName"
+		},
+		"newUPCDependentDetail_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/eee4d6ad-740a-45fe-b7a5-3953098adad5/resourceGroups/tpa-sandbox-resources/providers/Microsoft.Storage/storageAccounts/tpafiles"
+		},
+		"newUPCFilesMailedBlob_properties_upc_filesMailed_pipe_parameters_filesMailed_filename": {
+			"type": "string",
+			"defaultValue": "@triggerBody().fileName"
+		},
+		"newUPCFilesMailedBlob_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/eee4d6ad-740a-45fe-b7a5-3953098adad5/resourceGroups/tpa-sandbox-resources/providers/Microsoft.Storage/storageAccounts/tpafiles"
+		},
+		"new_claim_audit_file_properties_IFP_Audit_parameters_filename": {
+			"type": "string",
+			"defaultValue": "@triggerBody().fileName"
+		},
+		"new_claim_audit_file_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/d5c9a6b9-b86d-4e64-b9c3-dd75d7a0566b/resourceGroups/bhp-uat-selenium-pr-rg/providers/Microsoft.Storage/storageAccounts/bhpqaahpops"
+		},
+		"qaa-data-lake_properties_privateLinkResourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/d5c9a6b9-b86d-4e64-b9c3-dd75d7a0566b/resourceGroups/bhp-uat-selenium-pr-rg/providers/Microsoft.Storage/storageAccounts/bhpqaahpops"
+		},
+		"qaa-data-lake_properties_groupId": {
+			"type": "string",
+			"defaultValue": "dfs"
+		},
+		"qaa-data-lake_properties_fqdns": {
+			"type": "array",
+			"defaultValue": [
+				"bhpqaahpops.dfs.core.windows.net"
+			]
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "bhp-qaa-factory_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"bhp_prod_sftp_blob_connectionString": {
+						"value": "[parameters('bhp_prod_sftp_blob_connectionString')]"
+					},
+					"bhp_sandbox_upc_blob_connectionString": {
+						"value": "[parameters('bhp_sandbox_upc_blob_connectionString')]"
+					},
+					"bhp_sql_AnalyticsStaging_connectionString": {
+						"value": "[parameters('bhp_sql_AnalyticsStaging_connectionString')]"
+					},
+					"bhp_sql_OpsStaging_connectionString": {
+						"value": "[parameters('bhp_sql_OpsStaging_connectionString')]"
+					},
+					"AzureKeyVault1_properties_typeProperties_baseUrl": {
+						"value": "[parameters('AzureKeyVault1_properties_typeProperties_baseUrl')]"
+					},
+					"bhp_bhpdpdatalakedv_provider_properties_typeProperties_serviceEndpoint": {
+						"value": "[parameters('bhp_bhpdpdatalakedv_provider_properties_typeProperties_serviceEndpoint')]"
+					},
+					"bhp_qaa_data_lake_properties_typeProperties_url": {
+						"value": "[parameters('bhp_qaa_data_lake_properties_typeProperties_url')]"
+					},
+					"qaa-data-lake_properties_privateLinkResourceId": {
+						"value": "[parameters('qaa-data-lake_properties_privateLinkResourceId')]"
+					},
+					"qaa-data-lake_properties_groupId": {
+						"value": "[parameters('qaa-data-lake_properties_groupId')]"
+					},
+					"qaa-data-lake_properties_fqdns": {
+						"value": "[parameters('qaa-data-lake_properties_fqdns')]"
+					},
+					"new_claim_audit_file_properties_IFP_Audit_parameters_filename": {
+						"value": "[parameters('new_claim_audit_file_properties_IFP_Audit_parameters_filename')]"
+					},
+					"new_claim_audit_file_properties_typeProperties_scope": {
+						"value": "[parameters('new_claim_audit_file_properties_typeProperties_scope')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "bhp-qaa-factory_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"newUPCDependentDetail_properties_upc_dependentDetail_pipe_parameters_dependentDetail_filename": {
+						"value": "[parameters('newUPCDependentDetail_properties_upc_dependentDetail_pipe_parameters_dependentDetail_filename')]"
+					},
+					"newUPCDependentDetail_properties_typeProperties_scope": {
+						"value": "[parameters('newUPCDependentDetail_properties_typeProperties_scope')]"
+					},
+					"newUPCFilesMailedBlob_properties_upc_filesMailed_pipe_parameters_filesMailed_filename": {
+						"value": "[parameters('newUPCFilesMailedBlob_properties_upc_filesMailed_pipe_parameters_filesMailed_filename')]"
+					},
+					"newUPCFilesMailedBlob_properties_typeProperties_scope": {
+						"value": "[parameters('newUPCFilesMailedBlob_properties_typeProperties_scope')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'bhp-qaa-factory_ArmTemplate_0')]"
+			]
+		}
+	]
+}

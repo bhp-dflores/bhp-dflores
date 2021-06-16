@@ -1,0 +1,871 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "bhp-qaa-factory"
+		},
+		"bhp_prod_sftp_blob_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'bhp_prod_sftp_blob'"
+		},
+		"bhp_sandbox_upc_blob_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'bhp_sandbox_upc_blob'"
+		},
+		"bhp_sql_AnalyticsStaging_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'bhp_sql_AnalyticsStaging'"
+		},
+		"bhp_sql_OpsStaging_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'bhp_sql_OpsStaging'"
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://qaa-key-vault.vault.azure.net/"
+		},
+		"bhp_bhpdpdatalakedv_provider_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "https://bhpdpdatalakedv.blob.core.windows.net"
+		},
+		"bhp_qaa_data_lake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://bhpqaahpops.dfs.core.windows.net"
+		},
+		"qaa-data-lake_properties_privateLinkResourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/d5c9a6b9-b86d-4e64-b9c3-dd75d7a0566b/resourceGroups/bhp-uat-selenium-pr-rg/providers/Microsoft.Storage/storageAccounts/bhpqaahpops"
+		},
+		"qaa-data-lake_properties_groupId": {
+			"type": "string",
+			"defaultValue": "dfs"
+		},
+		"qaa-data-lake_properties_fqdns": {
+			"type": "array",
+			"defaultValue": [
+				"bhpqaahpops.dfs.core.windows.net"
+			]
+		},
+		"new_claim_audit_file_properties_IFP_Audit_parameters_filename": {
+			"type": "string",
+			"defaultValue": "@triggerBody().fileName"
+		},
+		"new_claim_audit_file_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/d5c9a6b9-b86d-4e64-b9c3-dd75d7a0566b/resourceGroups/bhp-uat-selenium-pr-rg/providers/Microsoft.Storage/storageAccounts/bhpqaahpops"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureKeyVault1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('AzureKeyVault1_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/default')]",
+			"type": "Microsoft.DataFactory/factories/managedVirtualNetworks",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"preventDataExfiltration": false
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bhp_bhpdpdatalakedv_provider')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connects to provider container in bhpdpdatalakedv",
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"serviceEndpoint": "[parameters('bhp_bhpdpdatalakedv_provider_properties_typeProperties_serviceEndpoint')]",
+					"accountKind": "StorageV2"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bhp_dp_dv_databricks')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-6489588885000176.16.azuredatabricks.net/",
+					"accessToken": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault1",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "databricks-token"
+					},
+					"existingClusterId": "0817-160728-posed223"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bhp_prod_sftp_blob')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('bhp_prod_sftp_blob_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bhp_qaa_data_lake')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('bhp_qaa_data_lake_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault1",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "qaa-blob-storage"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bhp_sandbox_upc_blob')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('bhp_sandbox_upc_blob_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bhp_sql_AnalyticsStaging')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('bhp_sql_AnalyticsStaging_connectionString')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault1",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "sql-serv-acct-password"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bhp_sql_OpsStaging')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('bhp_sql_OpsStaging_connectionString')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault1",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "sql-serv-acct-password"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/integrationRuntime1')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "Central US",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 32,
+							"timeToLive": 10
+						}
+					}
+				},
+				"managedVirtualNetwork": {
+					"type": "ManagedVirtualNetworkReference",
+					"referenceName": "default"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/default/qaa-data-lake')]",
+			"type": "Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"privateLinkResourceId": "[parameters('qaa-data-lake_properties_privateLinkResourceId')]",
+				"groupId": "[parameters('qaa-data-lake_properties_groupId')]",
+				"fqdns": "[parameters('qaa-data-lake_properties_fqdns')]"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/IFP_Audit')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IFP_Clms_Audit_ntbk",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/dflores@brighthealthcare.com/IFP_claim_fs_testing",
+							"baseParameters": {
+								"file": {
+									"value": "@pipeline().parameters.filename",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "bhp_dp_dv_databricks",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Send Email",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "IFP_Clms_Audit_ntbk",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://prod-21.centralus.logic.azure.com:443/workflows/cb2bd79cad774e6497aa95805448a894/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DaT-rFgk8kinP5LT-9JO2UEProrBMfgJHrEKrrh4jYY",
+							"connectVia": {
+								"referenceName": "AutoResolveIntegrationRuntime",
+								"type": "IntegrationRuntimeReference"
+							},
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "{\n\"pipeline name\": \"@{pipeline().Pipeline}\",\n\"status of run\": \"SUCCESS\",\n\"file processed\": \"@{pipeline().parameters.filename}\"\n}",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Send Email_copy1",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "IFP_Clms_Audit_ntbk",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://prod-21.centralus.logic.azure.com:443/workflows/cb2bd79cad774e6497aa95805448a894/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DaT-rFgk8kinP5LT-9JO2UEProrBMfgJHrEKrrh4jYY",
+							"connectVia": {
+								"referenceName": "AutoResolveIntegrationRuntime",
+								"type": "IntegrationRuntimeReference"
+							},
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "{\n\"pipeline name\": \"@{pipeline().Pipeline}\",\n\"status of run\": \"FAIL\",\n\"file processed\": \"@{pipeline().parameters.filename}\"\n}",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"parameters": {
+					"filename": {
+						"type": "string",
+						"defaultValue": "''"
+					}
+				},
+				"folder": {
+					"name": "IFP_Claims_Audit"
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-03-08T21:47:39Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/bhp_dp_dv_databricks')]",
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/upcDependentSQL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "bhp_sql_OpsStaging",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "UPC_files_automation"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "filename",
+						"type": "varchar"
+					},
+					{
+						"name": "acn",
+						"type": "varchar"
+					},
+					{
+						"name": "Subscriber_ID",
+						"type": "varchar"
+					},
+					{
+						"name": "Group_ID",
+						"type": "varchar"
+					},
+					{
+						"name": "HIOS_Code",
+						"type": "varchar"
+					},
+					{
+						"name": "First_Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Last_Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Subscriber_Dependent",
+						"type": "varchar"
+					},
+					{
+						"name": "Sub_Dep_Person_Code",
+						"type": "varchar"
+					},
+					{
+						"name": "DOB",
+						"type": "varchar"
+					},
+					{
+						"name": "Effective_Date",
+						"type": "varchar"
+					},
+					{
+						"name": "name",
+						"type": "varchar"
+					},
+					{
+						"name": "address1",
+						"type": "varchar"
+					},
+					{
+						"name": "address2",
+						"type": "varchar"
+					},
+					{
+						"name": "city",
+						"type": "varchar"
+					},
+					{
+						"name": "state",
+						"type": "varchar"
+					},
+					{
+						"name": "zip",
+						"type": "varchar"
+					},
+					{
+						"name": "ncoa_match_flag",
+						"type": "varchar"
+					},
+					{
+						"name": "printdate",
+						"type": "varchar"
+					},
+					{
+						"name": "maildate",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "UPC_DependentDetail"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/bhp_sql_OpsStaging')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/upcFilesMailedSQL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "bhp_sql_OpsStaging",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "UPC_files_automation"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "filename",
+						"type": "varchar"
+					},
+					{
+						"name": "maildate",
+						"type": "varchar"
+					},
+					{
+						"name": "QuantityMailed",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "UPC_FilesMailed"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/bhp_sql_OpsStaging')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/upc_dependent_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "bhp_sandbox_upc_blob",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"upc_dependent_filename": {
+						"type": "string",
+						"defaultValue": "''"
+					}
+				},
+				"folder": {
+					"name": "UPC_files_automation"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().upc_dependent_filename",
+							"type": "Expression"
+						},
+						"container": "upc"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "filename",
+						"type": "String"
+					},
+					{
+						"name": "acn",
+						"type": "String"
+					},
+					{
+						"name": "member_id",
+						"type": "String"
+					},
+					{
+						"name": "Subscriber_ID",
+						"type": "String"
+					},
+					{
+						"name": "Group_ID",
+						"type": "String"
+					},
+					{
+						"name": "xml_doc_id",
+						"type": "String"
+					},
+					{
+						"name": "HIOS_Code",
+						"type": "String"
+					},
+					{
+						"name": "First_Name",
+						"type": "String"
+					},
+					{
+						"name": "Last_Name",
+						"type": "String"
+					},
+					{
+						"name": "Subscriber_Dependent",
+						"type": "String"
+					},
+					{
+						"name": "Sub_Dep_Person_Code",
+						"type": "String"
+					},
+					{
+						"name": "DOB",
+						"type": "String"
+					},
+					{
+						"name": "Effective_Date",
+						"type": "String"
+					},
+					{
+						"name": "name",
+						"type": "String"
+					},
+					{
+						"name": "address1",
+						"type": "String"
+					},
+					{
+						"name": "address2",
+						"type": "String"
+					},
+					{
+						"name": "city",
+						"type": "String"
+					},
+					{
+						"name": "state",
+						"type": "String"
+					},
+					{
+						"name": "zip",
+						"type": "String"
+					},
+					{
+						"name": "ncoa_match_flag",
+						"type": "String"
+					},
+					{
+						"name": "printdate",
+						"type": "String"
+					},
+					{
+						"name": "maildate",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/bhp_sandbox_upc_blob')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/upc_files_mailed_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "bhp_sandbox_upc_blob",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"upc_fm_filename": {
+						"type": "string",
+						"defaultValue": "''"
+					}
+				},
+				"folder": {
+					"name": "UPC_files_automation"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().upc_fm_filename",
+							"type": "Expression"
+						},
+						"container": "upc"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "filename",
+						"type": "String"
+					},
+					{
+						"name": "maildate",
+						"type": "String"
+					},
+					{
+						"name": "QuantityMailed",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/bhp_sandbox_upc_blob')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/new_claim_audit_file')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "IFP_Audit",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"filename": "[parameters('new_claim_audit_file_properties_IFP_Audit_parameters_filename')]"
+						}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/ifp-claim-testing/blobs/loomis_claims_file_denials_removed",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('new_claim_audit_file_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/IFP_Audit')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dependentDetail_flow')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "UPC_files_flow"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "upc_dependent_csv",
+								"type": "DatasetReference"
+							},
+							"name": "dependentDetailCSV"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "upcDependentSQL",
+								"type": "DatasetReference"
+							},
+							"name": "dependentDetailSQL"
+						}
+					],
+					"transformations": [
+						{
+							"name": "changeDateFormat"
+						}
+					],
+					"script": "source(output(\n\t\tfilename as string,\n\t\tacn as string,\n\t\tmember_id as string,\n\t\tSubscriber_ID as string,\n\t\tGroup_ID as string,\n\t\txml_doc_id as string,\n\t\tHIOS_Code as string,\n\t\tFirst_Name as string,\n\t\tLast_Name as string,\n\t\tSubscriber_Dependent as string,\n\t\tSub_Dep_Person_Code as string,\n\t\tDOB as string,\n\t\tEffective_Date as string,\n\t\tname as string,\n\t\taddress1 as string,\n\t\taddress2 as string,\n\t\tcity as string,\n\t\tstate as string,\n\t\tzip as string,\n\t\tncoa_match_flag as string,\n\t\tprintdate as string,\n\t\tmaildate as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> dependentDetailCSV\ndependentDetailCSV derive(maildate = toDate(maildate, 'yyyy-MM-dd'),\n\t\tprintdate = toDate(printdate, 'yyyy-MM-dd')) ~> changeDateFormat\nchangeDateFormat sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tfilename as string,\n\t\tacn as string,\n\t\tSubscriber_ID as string,\n\t\tGroup_ID as string,\n\t\tHIOS_Code as string,\n\t\tFirst_Name as string,\n\t\tLast_Name as string,\n\t\tSubscriber_Dependent as string,\n\t\tSub_Dep_Person_Code as string,\n\t\tDOB as string,\n\t\tEffective_Date as string,\n\t\tname as string,\n\t\taddress1 as string,\n\t\taddress2 as string,\n\t\tcity as string,\n\t\tstate as string,\n\t\tzip as string,\n\t\tncoa_match_flag as string,\n\t\tprintdate as string,\n\t\tmaildate as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tfilename,\n\t\tacn,\n\t\tSubscriber_ID,\n\t\tGroup_ID,\n\t\tHIOS_Code,\n\t\tFirst_Name,\n\t\tLast_Name,\n\t\tSubscriber_Dependent,\n\t\tSub_Dep_Person_Code,\n\t\tDOB,\n\t\tEffective_Date,\n\t\tname,\n\t\taddress1,\n\t\taddress2,\n\t\tcity,\n\t\tstate,\n\t\tzip,\n\t\tncoa_match_flag,\n\t\tprintdate,\n\t\tmaildate\n\t)) ~> dependentDetailSQL"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/upc_dependent_csv')]",
+				"[concat(variables('factoryId'), '/datasets/upcDependentSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/filesMailed_flow')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "UPC_files_flow"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "upc_files_mailed_csv",
+								"type": "DatasetReference"
+							},
+							"name": "filesMailed"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "upcFilesMailedSQL",
+								"type": "DatasetReference"
+							},
+							"name": "filesMailedSQL"
+						}
+					],
+					"transformations": [
+						{
+							"name": "changeDateFormat"
+						}
+					],
+					"script": "source(output(\n\t\tfilename as string,\n\t\tmaildate as string,\n\t\tQuantityMailed as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> filesMailed\nfilesMailed derive(maildate = toDate(maildate, 'yyyy-MM-dd')) ~> changeDateFormat\nchangeDateFormat sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tfilename as string,\n\t\tmaildate as string,\n\t\tQuantityMailed as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tdateFormat:'MM/dd/yyyy',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 1,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tfilename,\n\t\tmaildate,\n\t\tQuantityMailed\n\t)) ~> filesMailedSQL"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/upc_files_mailed_csv')]",
+				"[concat(variables('factoryId'), '/datasets/upcFilesMailedSQL')]"
+			]
+		}
+	]
+}
