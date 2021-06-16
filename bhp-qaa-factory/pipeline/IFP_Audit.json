@@ -15,7 +15,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/dflores@brighthealthplan.com/IFP_claim_fs_testing",
+					"notebookPath": "/Users/dflores@brighthealthcare.com/IFP_claim_fs_testing",
 					"baseParameters": {
 						"file": {
 							"value": "@pipeline().parameters.filename",
