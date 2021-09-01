@@ -13,7 +13,13 @@
 				},
 				"secretName": "databricks-token"
 			},
-			"existingClusterId": "0209-212201-pulps596"
+			"newClusterNodeType": "Standard_D64s_v3",
+			"newClusterNumOfWorker": "2:4",
+			"newClusterSparkEnvVars": {
+				"PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+			},
+			"newClusterVersion": "9.0.x-scala2.12",
+			"newClusterInitScripts": []
 		},
 		"connectVia": {
 			"referenceName": "AutoResolveIntegrationRuntime",
