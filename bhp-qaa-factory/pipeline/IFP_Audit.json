@@ -21,7 +21,14 @@
 							"value": "@pipeline().parameters.filename",
 							"type": "Expression"
 						}
-					}
+					},
+					"libraries": [
+						{
+							"maven": {
+								"coordinates": "com.databricks:spark-xml_2.12:0.11.0"
+							}
+						}
+					]
 				},
 				"linkedServiceName": {
 					"referenceName": "bhp_dp_dv_databricks",
