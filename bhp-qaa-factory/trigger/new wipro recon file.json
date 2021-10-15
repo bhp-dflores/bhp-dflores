@@ -3,7 +3,7 @@
 	"properties": {
 		"description": "when a new wipro recon file arrives in the blob storage",
 		"annotations": [],
-		"runtimeState": "Started",
+		"runtimeState": "Stopped",
 		"pipelines": [],
 		"type": "BlobEventsTrigger",
 		"typeProperties": {
