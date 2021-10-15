@@ -9,6 +9,9 @@
 				"pipelineReference": {
 					"referenceName": "WiPro_Recon",
 					"type": "PipelineReference"
+				},
+				"parameters": {
+					"filename": "@triggerBody().fileName"
 				}
 			}
 		],
