@@ -4,14 +4,7 @@
 		"description": "when a new wipro recon file arrives in the blob storage",
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipelines": [
-			{
-				"pipelineReference": {
-					"referenceName": "WiPro_Recon",
-					"type": "PipelineReference"
-				}
-			}
-		],
+		"pipelines": [],
 		"type": "BlobEventsTrigger",
 		"typeProperties": {
 			"blobPathBeginsWith": "/enrollment-error-tracking/blobs/EEMT.SCHD.M6APL001",
