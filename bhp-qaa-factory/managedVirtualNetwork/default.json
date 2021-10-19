@@ -1,7 +1,0 @@
-{
-	"name": "default",
-	"type": "Microsoft.DataFactory/factories/managedvirtualnetworks",
-	"properties": {
-		"preventDataExfiltration": false
-	}
-}
